@@ -20,4 +20,14 @@ if(!defined('TOC_URL')){
     define('TOC_URL', plugin_dir_url( __FILE__ ));
 }
 
+require_once TOC_PATH . 'includes/class-toc.php';
+require_once TOC_PATH . 'includes/class-toc-settings.php';
 
+
+function initPlugin(){
+
+    new TOC();
+    new TOCSetting();
+}
+
+add_action( 'plugins_loaded', 'initPlugin');
