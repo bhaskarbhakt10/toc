@@ -4,11 +4,27 @@
 class TOC
 {
 
+    private $collapsible = false;
 
     function __construct()
     {
 
         add_filter('the_content', [$this, 'injectTOC']);
+
+        $isTocCollapsible = boolval(get_option('toc_collapsible_field', true));
+        if ($isTocCollapsible) {
+
+            $this->collapsible = true;
+            add_action('wp_enqueue_scripts', [$this, 'collapsibleTOC']);
+        }
+    }
+
+
+    function collapsibleTOC()
+    {
+        wp_enqueue_style('TOC-collapsible', TOC_URL . 'assets/css/collapsible-toc.css', [], time(), 'all');
+
+        wp_enqueue_script('TOC-collapsible', TOC_URL . 'assets/js/collapsible-toc.js',  [], time(), true);
     }
 
     function injectTOC($content)
@@ -19,20 +35,20 @@ class TOC
             return $content;
         }
 
-        
+
         $isEnabled  = boolval(get_option('toc_enabled', true));
-        
+
         $selectedTag  = get_option('toc_select_field', true);
-        
+
         $selectedClass  = get_option('toc_class_field', true);
-        
+
         $currentPostType = get_post_type();
 
-        $allowedPostType = is_array(get_option( 'toc_posts_field', [] )) ? (get_option( 'toc_posts_field', [] )) : [] ;
+        $allowedPostType = is_array(get_option('toc_posts_field', [])) ? (get_option('toc_posts_field', [])) : [];
 
         // var_dump($allowedPostType);
 
-        if(!in_array($currentPostType,$allowedPostType)){
+        if (!in_array($currentPostType, $allowedPostType)) {
 
             return $content;
         }
@@ -53,7 +69,7 @@ class TOC
 
         if (is_null($selectorQuery)) {
 
-           return $content;
+            return $content;
         }
 
 
@@ -78,10 +94,12 @@ class TOC
 
 
 
-        $tocHTML = '<ul class="simple__toc">';
-        $tocHTML .= '<h3>Table Of Content</h3>';
+        $tocHTML = '<div class="simple__toc toc__element ' . (($this->collapsible ? 'toc__collapsible' : '')) . '" data-element="toc">';
+        $tocHTML .= '<h3 class="toc__heading ' . (($this->collapsible ? 'toc__collapsibleHeading' : '')) . '">Table Of Content</h3>';
 
-
+        if ($this->collapsible) {
+            $tocHTML .= "<div class='toc__collapsibleWrapper collapsible'>";
+        }
 
         foreach ($result as $res) {
 
@@ -91,9 +109,15 @@ class TOC
 
             $res->setAttribute('id', $id);
 
-            $tocHTML .= "<li><a href='#" . $id . "'>$contentHtml</a></li>";
+            $tocHTML .= "<div class='toc__item " . (($this->collapsible ? 'toc__collapsibleItem collapsible' : '')) . "'><a href='#" . $id . "'>$contentHtml</a></div>";
         }
-        $tocHTML .= '</ul>';
+
+        if ($this->collapsible) {
+
+            $tocHTML .= '</div>';
+        }
+
+        $tocHTML .= '</div>';
 
 
 

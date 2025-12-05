@@ -54,6 +54,10 @@ class TOCSetting
             'toc_settings_group',
             'toc_posts_field'
         );
+        register_setting(
+            'toc_settings_group',
+            'toc_collapsible_field'
+        );
 
         add_settings_section(
             'toc_main_section',
@@ -94,11 +98,20 @@ class TOCSetting
             'toc-setting',
             'toc_main_section'
         );
+
+        add_settings_field(
+            'toc_collapsible_field',
+            'Enable Collapsible TOC',
+            [$this, 'collapsibleHtml'],
+            'toc-setting',
+            'toc_main_section'
+        );
     }
 
     function checkboxHtml()
     {
         $value = get_option('toc_enabled', true);
+        // var_dump($value);
     ?>
         <input type="checkbox" name="toc_enabled" value="1" <?php checked(1, $value, true) ?> />
         <p class="description">Check to enable automatic Table of Contents insertion.</p>
@@ -158,5 +171,14 @@ class TOCSetting
 
         
 <?php
+    }
+
+    function collapsibleHtml(){
+        $collapsibleHTML = get_option( 'toc_collapsible_field' , true);
+        // var_dump($collapsibleHTML);
+        ?>
+        <input type="checkbox" name="toc_collapsible_field" id="" value="1" <?php checked( 1, $collapsibleHTML, true )?>>
+        <p class="description">Check to make TOC Collapsible.</p>
+        <?php
     }
 }
