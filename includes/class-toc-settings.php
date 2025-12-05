@@ -59,6 +59,11 @@ class TOCSetting
             'toc_collapsible_field'
         );
 
+        register_setting(
+            'toc_settings_group',
+            'toc_position_field'
+        );
+
         add_settings_section(
             'toc_main_section',
             'General Settings',
@@ -106,6 +111,14 @@ class TOCSetting
             'toc-setting',
             'toc_main_section'
         );
+        
+        add_settings_field(
+            'toc_position_field',
+            'Choose Position',
+            [$this, 'choosePosition'],
+            'toc-setting',
+            'toc_main_section'
+        );
     }
 
     function checkboxHtml()
@@ -139,11 +152,11 @@ class TOCSetting
 
     function addClassToTag()
     {
-        $addedValue = get_option( 'toc_class_field', true );
-        
+        $addedValue = get_option('toc_class_field', true);
+
     ?>
 
-        <input type="text" class="regular-text" id="toc_class_field" name="toc_class_field" value="<?php echo $addedValue;?>" placeholder="wp-block-heading">
+        <input type="text" class="regular-text" id="toc_class_field" name="toc_class_field" value="<?php echo $addedValue; ?>" placeholder="wp-block-heading">
         <p class="description">Add class to tagname. Skip using class selector use just classname <b>ex:</b>h1.wp-block-heading</p>
 
         <?php
@@ -156,29 +169,43 @@ class TOCSetting
             'names'
         );
 
-        $checkedData = (get_option( 'toc_posts_field', [] ));
+        $checkedData = (get_option('toc_posts_field', []));
         foreach ($post_types as $key => $value) {
         ?>
             <div>
-                <label for="type-<?php echo $value?>">
-                    <input type="checkbox" name="toc_posts_field[]" id="type-<?php echo $value?>" value="<?php echo $value;?>" <?php echo is_array($checkedData) && in_array($value, $checkedData) ? 'checked' : '';?>>
-                    <?php echo ucfirst($value);?>
+                <label for="type-<?php echo $value ?>">
+                    <input type="checkbox" name="toc_posts_field[]" id="type-<?php echo $value ?>" value="<?php echo $value; ?>" <?php echo is_array($checkedData) && in_array($value, $checkedData) ? 'checked' : ''; ?>>
+                    <?php echo ucfirst($value); ?>
                 </label>
             </div>
         <?php
         }
         ?>
 
-        
-<?php
+
+    <?php
     }
 
-    function collapsibleHtml(){
-        $collapsibleHTML = get_option( 'toc_collapsible_field' , true);
+    function collapsibleHtml()
+    {
+        $collapsibleHTML = get_option('toc_collapsible_field', true);
         // var_dump($collapsibleHTML);
-        ?>
-        <input type="checkbox" name="toc_collapsible_field" id="" value="1" <?php checked( 1, $collapsibleHTML, true )?>>
+    ?>
+        <input type="checkbox" name="toc_collapsible_field" id="" value="1" <?php checked(1, $collapsibleHTML, true) ?>>
         <p class="description">Check to make TOC Collapsible.</p>
+        <?php
+    }
+    
+    function choosePosition(){
+        
+        $selectedPosition = get_option( 'toc_position_field', true );
+        
+        ?>
+        <select name="toc_position_field" id="">
+            <option value="before" <?php echo (strcasecmp($selectedPosition, 'before') === 0) ? 'selected' : ''?> >Before</option>
+            <option value="after" <?php echo (strcasecmp($selectedPosition, 'after') === 0) ? 'selected' : ''?> >After</option>
+        </select>
+        <p class="description">Choose Position To Display Toc</p>
         <?php
     }
 }

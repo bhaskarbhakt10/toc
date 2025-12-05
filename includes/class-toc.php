@@ -44,6 +44,9 @@ class TOC
 
         $currentPostType = get_post_type();
 
+        $selectedPosition = get_option( 'toc_position_field', true ) ;
+
+        
         $allowedPostType = is_array(get_option('toc_posts_field', [])) ? (get_option('toc_posts_field', [])) : [];
 
         // var_dump($allowedPostType);
@@ -123,7 +126,20 @@ class TOC
 
         $updatedContent = $document->saveHTML();
 
+        $returnContent = $updatedContent;
+        
+        if(strcasecmp($selectedPosition,'before') === 0){
+            
+            $returnContent =  $tocHTML . $updatedContent;
+        }
+        
+        if(strcasecmp($selectedPosition,'after') === 0){
+            
+            $returnContent =  $updatedContent . $tocHTML;
+        }
+        
+        return  $returnContent;
 
-        return  $tocHTML . $updatedContent;
+
     }
 }
