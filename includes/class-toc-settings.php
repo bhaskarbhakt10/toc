@@ -8,6 +8,21 @@ class TOCSetting
     {
         add_action('admin_menu', [$this, 'registerSettingsPage']);
         add_action('admin_init', [$this, 'registerTOCSettings']);
+
+        add_action('admin_enqueue_scripts', [$this, 'adminScripts']);
+    }
+
+    function adminScripts($hook)
+    {
+
+
+        if ($hook !== 'toplevel_page_toc-setting') {
+            return;
+        }
+
+        wp_enqueue_style('TOC-admin-settings', TOC_URL . 'assets/css/admin/admin.css', [], time(), 'all');
+
+        wp_enqueue_script('TOC-admin-settings', TOC_URL . 'assets/js/admin/admin.js',  [], time(), true);
     }
 
 
@@ -21,14 +36,73 @@ class TOCSetting
     { ?>
 
         <div class='wrap'>
-            <h1 class='wp-heading-inline'>TOC Settings</h1>
-            <form method="post" action="options.php">
-                <?php
-                settings_fields('toc_settings_group');
-                do_settings_sections('toc-setting');
-                submit_button();
-                ?>
-            </form>
+            <h1 class=''>TOC Settings</h1>
+
+            <div class="tabs__wrapper">
+                <div class="tabs__headings">
+                    <ul class="toc__settings settings__tab">
+                        <li class="setting__tabItem active"><a class="setting_nav" href="#general-settings">General Settings</a></li>
+                        <li class="setting__tabItem"><a class="setting_nav" href="#appearance-settings">Appearance</a></li>
+                        <li class="setting__tabItem"><a class="setting_nav" href="#behavioral-settings">Behavioral Settings</a></li>
+                        <li class="setting__tabItem"><a class="setting_nav" href="#heading-settings">Heading Control</a></li>
+                        <li class="setting__tabItem"><a class="setting_nav" href="#shortcode-settings">Shortcode Settings</a></li>
+                        <li class="setting__tabItem"><a class="setting_nav" href="#advanced-settings">Advanced</a></li>
+                    </ul>
+                </div>
+                <div class="tabs__content">
+                    <div class="settings__content active" id="general-settings" class="">
+                        <h2 class="setting__heading">
+                            General Settings
+
+                        </h2>
+                        <form method="post" action="options.php">
+                            <?php
+                            settings_fields('toc_settings_group');
+                            do_settings_sections('toc-setting');
+                            submit_button();
+                            ?>
+                        </form>
+                    </div>
+                    <div class="settings__content " id="appearance-settings">
+                        <h2 class="setting__heading">
+                            Appearance Settings
+
+                        </h2>
+                        <form method="post" action="options.php">
+                            <?php
+                            settings_fields('toc_appearance_group');
+                            do_settings_sections('toc-appearance');
+                            submit_button();
+                            ?>
+                        </form>
+                    </div>
+                    <div class="settings__content" id="behavioral-settings">
+                        <h2 class="setting__heading">
+                            Behavioral Settings
+
+                        </h2>
+                    </div>
+                    <div class="settings__content" id="heading-settings">
+                        <h2 class="setting__heading">
+                            Headings Settings
+
+                        </h2>
+                    </div>
+                    <div class="settings__content" id="shortcode-settings">
+                        <h2 class="setting__heading">
+                            Shortcode Settings
+
+                        </h2>
+                    </div>
+                    <div class="settings__content" id="advanced-settings">
+                        <h2 class="setting__heading">
+                            Advanced Settings
+                        </h2>
+                    </div>
+                </div>
+            </div>
+
+
         </div>
 
 
@@ -37,19 +111,27 @@ class TOCSetting
     function registerTOCSettings()
     {
 
+        
+        add_settings_section(
+            'toc_general_section',
+            '',
+            '',
+            'toc-setting'
+        );
+
+        add_settings_section(
+            'toc_appearance_section',
+            '',
+            '',
+            'toc-appearance'
+        );
+
+
         register_setting(
             'toc_settings_group',
             'toc_enabled'
         );
-
-        register_setting(
-            'toc_settings_group',
-            'toc_select_field'
-        );
-        register_setting(
-            'toc_settings_group',
-            'toc_class_field'
-        );
+       
         register_setting(
             'toc_settings_group',
             'toc_posts_field'
@@ -61,15 +143,92 @@ class TOCSetting
 
         register_setting(
             'toc_settings_group',
+            'toc_min_heading'
+        );
+
+        register_setting(
+            'toc_settings_group',
             'toc_position_field'
         );
 
-        add_settings_section(
-            'toc_main_section',
-            'General Settings',
-            '',
-            'toc-setting'
+        register_setting(
+            'toc_appearance_group',
+            'toc_class_field'
         );
+        register_setting(
+            'toc_appearance_group',
+            'toc_title_heading'
+        );
+
+        register_setting(
+            'toc_appearance_group',
+            'toc_select_field'
+        );
+
+
+
+
+        /***
+         * 
+         * 
+         * general Settings
+         * 
+         */
+
+        add_settings_field(
+            'toc_enabled_field',
+            'Enable TOC',
+            [$this, 'checkboxHtml'],
+            'toc-setting',
+            'toc_general_section'
+        );
+
+         add_settings_field(
+            'toc_position_field',
+            'Choose Position',
+            [$this, 'choosePosition'],
+            'toc-setting',
+            'toc_general_section'
+        );
+        add_settings_field(
+            'toc_posts_field',
+            'Select Posts',
+            [$this, 'selectPostsTypes'],
+            'toc-setting',
+            'toc_general_section'
+        );
+
+        add_settings_field(
+            'toc_min_heading',
+            'Select min no of count',
+            [$this, 'selectCount'],
+            'toc-setting',
+            'toc_general_section'
+        );
+    
+        add_settings_field(
+            'toc_collapsible_field',
+            'Enable Collapsible TOC',
+            [$this, 'collapsibleHtml'],
+            'toc-setting',
+            'toc_general_section'
+        );
+
+        /***
+         * 
+         * 
+         * general Settings
+         * 
+         */
+
+
+
+        /***
+         * 
+         * 
+         * appearance settings
+         * 
+         */
 
 
 
@@ -77,48 +236,57 @@ class TOCSetting
             'toc_select_field',
             'Select Tag',
             [$this, 'selectTag'],
-            'toc-setting',
-            'toc_main_section'
+            'toc-appearance',
+            'toc_appearance_section'
         );
 
         add_settings_field(
             'toc_class_field',
             'Add Class',
             [$this, 'addClassToTag'],
-            'toc-setting',
-            'toc_main_section'
+            'toc-appearance',
+            'toc_appearance_section'
         );
 
         add_settings_field(
-            'toc_posts_field',
-            'Select Posts',
-            [$this, 'selectPostsTypes'],
-            'toc-setting',
-            'toc_main_section'
-        );
-        add_settings_field(
-            'toc_enabled_field',
-            'Enable TOC',
-            [$this, 'checkboxHtml'],
-            'toc-setting',
-            'toc_main_section'
+            'toc_title_heading',
+            'TOC Title',
+            [$this, 'tocTitle'],
+            'toc-appearance',
+            'toc_appearance_section'
         );
 
-        add_settings_field(
-            'toc_collapsible_field',
-            'Enable Collapsible TOC',
-            [$this, 'collapsibleHtml'],
-            'toc-setting',
-            'toc_main_section'
-        );
+        /***
+         * 
+         * 
+         * appearance settings
+         * 
+         */
+
         
-        add_settings_field(
-            'toc_position_field',
-            'Choose Position',
-            [$this, 'choosePosition'],
-            'toc-setting',
-            'toc_main_section'
-        );
+        
+
+        
+
+       
+    }
+
+    function selectCount(){
+        $minHeading = intval(get_option( 'toc_min_heading', true ))  ?? 0;
+        
+        ?>
+        <input value="<?php echo $minHeading;?>" type="number" name="toc_min_heading" id="toc_min_heading" class="regular-text" placeholder="No of min heading">
+        <p class="description">No of min heading required on a page to show TOC.</p>
+        <?php
+    }
+
+    function tocTitle(){
+        $title = get_option( 'toc_title_heading', true );
+        // var_dump($title);
+        ?>
+        <input value="<?php echo $title;?>" type="text" name="toc_title_heading" id="toc_title_heading" class="regular-text" placeholder="Table Of content">
+        <p class="description">Heading for TOC.</p>
+        <?php
     }
 
     function checkboxHtml()
@@ -193,19 +361,25 @@ class TOCSetting
     ?>
         <input type="checkbox" name="toc_collapsible_field" id="" value="1" <?php checked(1, $collapsibleHTML, true) ?>>
         <p class="description">Check to make TOC Collapsible.</p>
-        <?php
+    <?php
     }
-    
-    function choosePosition(){
-        
-        $selectedPosition = get_option( 'toc_position_field', true );
-        
-        ?>
+
+    function choosePosition()
+    {
+
+        $selectedPosition = get_option('toc_position_field', true);
+
+    ?>
         <select name="toc_position_field" id="">
-            <option value="before" <?php echo (strcasecmp($selectedPosition, 'before') === 0) ? 'selected' : ''?> >Before</option>
-            <option value="after" <?php echo (strcasecmp($selectedPosition, 'after') === 0) ? 'selected' : ''?> >After</option>
+            <option value="before" <?php echo (strcasecmp($selectedPosition, 'before') === 0) ? 'selected' : '' ?>>Before</option>
+            <option value="after" <?php echo (strcasecmp($selectedPosition, 'after') === 0) ? 'selected' : '' ?>>After</option>
+            <option value="custom" <?php echo (strcasecmp($selectedPosition, 'custom') === 0) ? 'selected' : '' ?>>Custom</option>
         </select>
-        <p class="description">Choose Position To Display Toc</p>
-        <?php
+        <p class="description">Choose Position To Display Toc
+            <?php if (strcasecmp($selectedPosition, 'custom') === 0) { ?>
+                please use [toc] shortcode to place manually on a page
+            <?php } ?>
+        </p>
+<?php
     }
 }
